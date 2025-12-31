@@ -6,14 +6,30 @@ on:
       - main
 
 jobs:
-  build:
-    runs-on: ubuntu-22.04                    # similar to "image" in GitLab
+  tflint:
+    runs-on: ubuntu-22.04
     steps:
-      - run: echo "This is a build step"
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - uses: terraform-linters/setup-tflint@v1
+        name: Setup TFLint
+        with:
+          tflint_version: latest
+
+      - name: Run TFLint
+        run: tflint --chdir=aws -f json > tflint-output.json
+        continue-on-error: true
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TFLint
+          path: tflint-output.json
+        if: always()                        # what is this for?
 
   test:
     runs-on: ubuntu-22.04
-    needs: build
+    needs: tflint
     steps:
       - run: echo "This is a test step"
 
