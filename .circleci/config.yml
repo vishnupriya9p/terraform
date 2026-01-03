@@ -1,12 +1,10 @@
 jobs:
-  tflint:
-    machine: true
+  build:
+    docker:
+      - image: cimg/base:stable                   # similar to "image" in GitLab
     steps:
       - checkout
-      - run: docker run --rm -v $(pwd):/data -t ghcr.io/terraform-linters/tflint --chdir=aws -f json | tee tflint-output.json || true
-      - store_artifacts:
-          path: tflint-output.json
-          destination: tflint-artifact
+      - run: echo "This is a build step"          # similar to "script" in GitLab
 
   test:
     docker:
@@ -36,7 +34,7 @@ workflows:
   version: 2
   django:
     jobs:
-      - tflint
+      - build
       - test
       - integration
       - prod:
